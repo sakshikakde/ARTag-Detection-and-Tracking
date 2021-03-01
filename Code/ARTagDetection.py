@@ -62,7 +62,9 @@ def extractInfoFromTag(tag):
     for i in range(0, grid_size, 1):
         for j in range(0, grid_size, 1):
             grid = tag[i*pixels_in_one_grid:(i+1)*pixels_in_one_grid, j*pixels_in_one_grid:(j+1)*pixels_in_one_grid]
-            info_with_padding[i,j] = np.median(grid)
+            if np.sum(grid) > 100000 and np.median(grid) == 255:
+                # print(np.sum(grid))
+                info_with_padding[i,j] = 255
     info = info_with_padding[2:6, 2:6]
     return info
 
@@ -153,8 +155,6 @@ def findTag(chosen_frame, SavePath, i):
     ret,thresh = cv2.threshold(np.uint8(image_transformed), 200 ,255,cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     chosen_contours = []
-    print(len(contours))
-    print(hierarchy)
     for j in range(len(contours)):
         if hierarchy[0, j, 3] == 0:#no parent
             if hierarchy[0, j, 2] !=-1: #child
@@ -181,7 +181,7 @@ def main():
     video_file = BasePath + "Data/Tag2.mp4"
     cap = cv2.VideoCapture(video_file)
 
-    frame_index = 2
+    frame_index = 10
     i = 0
     while(True):
         ret, frame = cap.read()
