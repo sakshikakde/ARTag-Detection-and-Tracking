@@ -69,12 +69,13 @@ def applyHomography2ImageUsingInverseWarping(image, H, size):
 
     #pad image
     max_val = np.max([X_max, image.shape[0], Y_max, image.shape[1]])
-    image_i = np.zeros((max_val, max_val))
-    image_i[0:image.shape[0], 0:image.shape[1]] = image
+    image_i = np.zeros((max_val, max_val, 3))
+    print(image_i.shape)
+    image_i[0:image.shape[0], 0:image.shape[1], :] = image
 
-    image_transformed = np.zeros((size[0], size[1]))
+    image_transformed = np.zeros((size[0], size[1], 3))
     Xi, Yi = lin_homg_pts[:2,:].astype(int)
-    image_transformed[Xt.ravel(), Yt.ravel()] = image_i[Yi, Xi]
+    image_transformed[Xt.ravel(), Yt.ravel(), :] = image_i[Yi, Xi, :]
     
     return image_transformed
 
@@ -86,3 +87,19 @@ def createGaussianMask(image_size, sigma_x, sigma_y):
     X, Y = np.meshgrid(x,y)
     mask = np.exp(-(np.square((X - centre_x)/sigma_x) + np.square((Y - centre_y)/sigma_y)))
     return mask
+
+def arrangeCorners(corners):
+    #leftmost poin
+    dist = np.square(corners[:,0]) + np.square(corners[:,1])
+    arrnged_corners = []
+
+    for i in range(corners.shape[0]):
+        index = np.argmax(dist)
+        arrnged_corners.append(corners[index,:])
+        dist[index] = -1
+
+    temp = arrnged_corners[2].copy()
+    arrnged_corners[2] = arrnged_corners[-1]
+    arrnged_corners[3] = temp
+
+    return np.array(arrnged_corners)

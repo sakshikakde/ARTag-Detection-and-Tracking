@@ -62,15 +62,19 @@ def extractInfoFromTag(tag):
     for i in range(0, grid_size, 1):
         for j in range(0, grid_size, 1):
             grid = tag[i*pixels_in_one_grid:(i+1)*pixels_in_one_grid, j*pixels_in_one_grid:(j+1)*pixels_in_one_grid]
-            if np.sum(grid) > 100000 and np.median(grid) == 255:
-                # print(np.sum(grid))
+            
+            if np.sum(grid) > 100000*0.7 and np.median(grid) == 255:
+                print(np.sum(grid))
                 info_with_padding[i,j] = 255
+    print(info_with_padding)
     info = info_with_padding[2:6, 2:6]
     return info
 
 def decipherInfoFromTag(info):
     while not info[3,3]:
         info = np.rot90(info, 1)
+
+    print(info)
     id_info = info[1:3, 1:3]
     id_info_flat = np.array([id_info[0,0], id_info[0,1], id_info[1,1], id_info[1,0]])
     tag_id = 0
@@ -141,18 +145,19 @@ def findTag(chosen_frame, SavePath, i):
     plt.savefig(SavePath + "detect" + str(i) + ".jpg")
 
     size_x = 400
-    size_y = 300
+    size_y = 400
 
-    corner1 = corners[0]
-    corner2 = np.array([[0, 0], [0, size_y], [size_x, size_y], [size_x, 0]])
+    corner1 = arrangeCorners(corners[0])
+    corner2 = arrangeCorners(np.array([ [0, size_y], [size_x, size_y], [size_x, 0], [0, 0]]))
 
     H = computeHomography(np.float32(corner1), np.float32(corner2))
-    image_transformed = applyHomography2ImageUsingInverseWarping(image_gray, H, (size_x, size_y))
+    image_transformed = applyHomography2ImageUsingInverseWarping(image_color, H, (size_x, size_y))
     plt.figure()
-    plt.imshow(image_transformed, cmap = 'gray')
+    plt.imshow(np.uint8(image_transformed), cmap = 'gray')
     plt.savefig(SavePath + "img_trans" + str(i) + ".jpg")
 
-    ret,thresh = cv2.threshold(np.uint8(image_transformed), 200 ,255,cv2.THRESH_BINARY)
+    image_transformed_gray = cv2.cvtColor(np.uint8(image_transformed), cv2.COLOR_BGR2GRAY)
+    ret,thresh = cv2.threshold(image_transformed_gray, 200 ,255,cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     chosen_contours = []
     for j in range(len(contours)):
@@ -163,16 +168,20 @@ def findTag(chosen_frame, SavePath, i):
 
     tag_size = 160
     tag_corner = cv2.approxPolyDP(chosen_contours[0], 0.009 * cv2.arcLength(chosen_contours[0], True), True) 
-    desired_corner = np.array([[0,0], [tag_size, 0], [tag_size, tag_size], [0, tag_size]])
+    desired_corner = np.array([[0, tag_size],[tag_size, tag_size],[tag_size,0], [0,0]])
 
-    H = computeHomography(np.float32(tag_corner.reshape(4,2)), np.float32(desired_corner))
+    tag_corner = arrangeCorners(tag_corner.reshape(-1,2))
+    desired_corner = arrangeCorners(desired_corner)
+
+    H = computeHomography(np.float32(tag_corner), np.float32(desired_corner))
     tag = applyHomography2ImageUsingInverseWarping(image_transformed, H, (tag_size, tag_size))
-    ret,tag = cv2.threshold(tag, 200 ,255,cv2.THRESH_BINARY)
+    tag = cv2.cvtColor(np.uint8(tag), cv2.COLOR_BGR2GRAY)
+    ret,tag = cv2.threshold(np.uint8(tag), 230 ,255,cv2.THRESH_BINARY)
     plt.figure()
     plt.imshow(tag, cmap = 'gray')
     plt.savefig(SavePath + "tag" + str(i) + ".jpg")
 
-    return tag
+    return corner1, tag
 
 
 def main():
@@ -181,7 +190,7 @@ def main():
     video_file = BasePath + "Data/Tag2.mp4"
     cap = cv2.VideoCapture(video_file)
 
-    frame_index = 10
+    frame_index = 400
     i = 0
     while(True):
         ret, frame = cap.read()
@@ -199,10 +208,11 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
-    tag = findTag(chosen_frame, SavePath, frame_index)
+    corners, tag = findTag(chosen_frame, SavePath, frame_index)
     info = extractInfoFromTag(tag)
     tag_id = decipherInfoFromTag(info)
     print("The tag ID is ", tag_id)
+    print("The tag corners are ", corners)
 
 if __name__ == '__main__':
     main()
