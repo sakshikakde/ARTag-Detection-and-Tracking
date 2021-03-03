@@ -31,25 +31,33 @@ def computeHomography(corners1, corners2):
     # print(H)
     return H
 
-def applyHomography2Image(image, H, size):
+def applyHomography2ImageUsingForwardWarping(image, H, size):
+    cols, rows = size
     h, w = image.shape[:2] 
     Yi, Xi = np.indices((h, w)) 
     lin_homg_pts = np.stack((Xi.ravel(), Yi.ravel(), np.ones(Xi.size)))
-
     trans_lin_homg_pts = H.dot(lin_homg_pts)
-    trans_lin_homg_pts /= trans_lin_homg_pts[2,:]
+    trans_lin_homg_pts /= (trans_lin_homg_pts[2,:] + 0.01)
+    trans_lin_homg_pts = np.round(trans_lin_homg_pts).astype(int)
 
     X_min = np.min(trans_lin_homg_pts[0,:])
     Y_min = np.min(trans_lin_homg_pts[1,:])
     X_max = np.max(trans_lin_homg_pts[0,:])
     Y_max = np.max(trans_lin_homg_pts[1,:])
 
-    image_transformed = np.zeros((int(Y_max - Y_min) + 1, int(X_max - X_min) + 1))
-    x, y = trans_lin_homg_pts[:2,:].astype(int)
-    image_transformed[y, x] = image[Yi.ravel(), Xi.ravel()]
-    image_cropped = image_transformed[0:size[1], 0:size[0]]
+    image_transformed = np.zeros((rows, cols, 3)) 
+    x = trans_lin_homg_pts[0,:]
+    y = trans_lin_homg_pts[1,:]
+    
 
-    return image_cropped
+    x[x >= cols] = cols - 1
+    y[y >= rows] = rows - 1
+    x[x < 0] = 0
+    y[y < 0] = 0
+
+    image_transformed[y, x] = image[Yi.ravel(), Xi.ravel()]
+    image_transformed = np.uint8(image_transformed)
+    return image_transformed
 
 
 def applyHomography2ImageUsingInverseWarping(image, H, size):
@@ -67,10 +75,12 @@ def applyHomography2ImageUsingInverseWarping(image, H, size):
     Y_max = np.max(lin_homg_pts[1,:]).astype(int)
     X_min, X_max, Y_min, Y_max
 
+    # print(X_min, X_max, Y_min, Y_max)
+
     #pad image
-    max_val = np.max([X_max, image.shape[0], Y_max, image.shape[1]])
+    max_val = np.max([X_max - X_min, image.shape[0], Y_max - Y_min, image.shape[1]])
     image_i = np.zeros((max_val, max_val, 3))
-    print(image_i.shape)
+    # print(image_i.shape)
     image_i[0:image.shape[0], 0:image.shape[1], :] = image
 
     image_transformed = np.zeros((size[0], size[1], 3))
@@ -103,3 +113,36 @@ def arrangeCorners(corners):
     arrnged_corners[3] = temp
 
     return np.array(arrnged_corners)
+
+def sortCorners(points):
+
+    x_sorted = points[np.argsort(points[:,0])]
+
+    points_left = x_sorted[0:2, :]
+    points_right = x_sorted[2:4, :]
+
+    left_sorted_y = points_left[np.argsort(points_left[:,1])]
+    tl, bl = left_sorted_y
+
+    right_sorted_y = points_right[np.argsort(points_right[:,1])]
+    tr, br = right_sorted_y
+    points_sorted = np.array([tl, bl, br, tr])
+    return points_sorted
+
+def extractInfoFromTag(tag):
+    tag_size = tag.shape[0]
+    grid_size = 8
+    pixels_in_one_grid =  int(tag_size/8)
+
+    info_with_padding = np.zeros((8,8))
+
+    for i in range(0, grid_size, 1):
+        for j in range(0, grid_size, 1):
+            grid = tag[i*pixels_in_one_grid:(i+1)*pixels_in_one_grid, j*pixels_in_one_grid:(j+1)*pixels_in_one_grid]
+            
+            if np.sum(grid) > 100000*0.7 and np.median(grid) == 255:
+                print(np.sum(grid))
+                info_with_padding[i,j] = 255
+    print(info_with_padding)
+    info = info_with_padding[2:6, 2:6]
+    return info
