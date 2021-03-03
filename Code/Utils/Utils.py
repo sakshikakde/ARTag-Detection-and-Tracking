@@ -60,32 +60,23 @@ def applyHomography2ImageUsingForwardWarping(image, H, size):
     return image_transformed
 
 
-def applyHomography2ImageUsingInverseWarping(image, H, size):
+def applyHomography2ImageUsingInverseWarpingTest(image, H, size):
 
-    Xt, Yt = np.indices((size[0], size[1]))
+    Yt, Xt = np.indices((size[0], size[1]))
     lin_homg_pts_trans = np.stack((Xt.ravel(), Yt.ravel(), np.ones(Xt.size)))
 
     H_inv = np.linalg.inv(H)
     lin_homg_pts = H_inv.dot(lin_homg_pts_trans)
     lin_homg_pts /= lin_homg_pts[2,:]
 
-    X_min = np.min(lin_homg_pts[0,:]).astype(int)
-    Y_min = np.min(lin_homg_pts[1,:]).astype(int)
-    X_max = np.max(lin_homg_pts[0,:]).astype(int)
-    Y_max = np.max(lin_homg_pts[1,:]).astype(int)
-    X_min, X_max, Y_min, Y_max
-
-    # print(X_min, X_max, Y_min, Y_max)
-
-    #pad image
-    max_val = np.max([X_max - X_min, image.shape[0], Y_max - Y_min, image.shape[1]])
-    image_i = np.zeros((max_val, max_val, 3))
-    # print(image_i.shape)
-    image_i[0:image.shape[0], 0:image.shape[1], :] = image
+    Xi, Yi = lin_homg_pts[:2,:].astype(int)
+    Xi[Xi >=  image.shape[1]] = image.shape[1]
+    Xi[Xi < 0] = 0
+    Yi[Yi >=  image.shape[0]] = image.shape[0]
+    Yi[Yi < 0] = 0
 
     image_transformed = np.zeros((size[0], size[1], 3))
-    Xi, Yi = lin_homg_pts[:2,:].astype(int)
-    image_transformed[Xt.ravel(), Yt.ravel(), :] = image_i[Yi, Xi, :]
+    image_transformed[Yt.ravel(), Xt.ravel(), :] = image[Yi, Xi, :]
     
     return image_transformed
 
@@ -143,6 +134,6 @@ def extractInfoFromTag(tag):
             if np.sum(grid) > 100000*0.7 and np.median(grid) == 255:
                 print(np.sum(grid))
                 info_with_padding[i,j] = 255
-    print(info_with_padding)
+    # print(info_with_padding)
     info = info_with_padding[2:6, 2:6]
     return info
