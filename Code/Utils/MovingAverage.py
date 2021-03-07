@@ -2,12 +2,12 @@ import numpy as np
 
 class MovingAverage:
 
-    def __init__(self, window_size):
+    def __init__(self, window_size, weight):
 
         self.window_size_ = window_size
         self.quadrilaterals_ = []
         self.average_ = 0
-        self.weight_ = 5
+        self.weight_ = weight
 
     def addQuadrilateral(self, points):
 
