@@ -1,26 +1,26 @@
 # File Structure
 
--sakshi_p1
---Code
----ARDetection.py
----TestudoNCube.py
+-sakshi_p1    
+--Code  
+---ARDetection.py  
+---TestudoNCube.py   
 
---Data
----Tag0.mp4
----Tag1.mp4
----Tag2.mp4
----multipleTags.mp4
----testudo.png
----ref_marker.png
+--Data   
+---Tag0.mp4   
+---Tag1.mp4   
+---Tag2.mp4   
+---multipleTags.mp4   
+---testudo.png   
+---ref_marker.png   
 
---Results
----problem1
----problem2
-----testudo
-----cube
+--Results   
+---problem1   
+---problem2   
+----testudo   
+----cube   
 
---README.md
---ENPM673_P1_report.pdf
+--README.md   
+--ENPM673_P1_report.pdf   
 
 # Problem 1
 
