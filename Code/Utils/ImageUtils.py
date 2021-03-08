@@ -90,9 +90,11 @@ def decipherInfoFromTag(info):
     tag_id_bin = []
     for i in range(4):
         if(id_info_flat[i]):
-            tag_id = tag_id + 2**(3 - i)
+            tag_id = tag_id + 2**(i)
             tag_id_bin.append(1)
         else:
             tag_id_bin.append(0)
+
+    tag_id_bin.reverse()
 
     return tag_id, tag_id_bin

@@ -33,8 +33,8 @@ def main():
 
     Parser = argparse.ArgumentParser()
     Parser.add_argument('--BasePath', default='/home/sakshi/courses/ENPM673/sakshi_p1/', help='Base path of project1, Default:/home/sakshi/courses/ENPM673/sakshi_p1/')
-    Parser.add_argument('--VideoFilePath', default='/home/sakshi/courses/ENPM673/sakshi_p1/Data/Tag2.mp4', help='MP4 file name, Default:Tag2.mp4')
-    Parser.add_argument('--SaveFileName', default='Results/problem2/testudo/Tag2_unfiltered.avi', help='Folder to save graphs, Default:testudo/Tag2_unfiltered.avi')
+    Parser.add_argument('--VideoFilePath', default='/home/sakshi/courses/ENPM673/sakshi_p1/Data/Tag0.mp4', help='MP4 file name, Default:Tag2.mp4')
+    Parser.add_argument('--SaveFileName', default='Results/problem2/testudo/tag0.avi', help='Folder to save graphs, Default:testudo/Tag2_unfiltered.avi')
     Parser.add_argument('--ProjectTestudo', default=True,type=lambda x: bool(int(x)))
     Parser.add_argument('--UseFilter',  default=False,type=lambda x: bool(int(x)))
 
@@ -58,14 +58,14 @@ def main():
                             cv2.VideoWriter_fourcc(*'MJPG'), 
                             10, (frame_width, frame_height)) 
 
-    f = open("corners.csv", 'w')
-    csvwriter = csv.writer(f)  
+    # f = open("corners.csv", 'w')
+    # csvwriter = csv.writer(f)  
 
-    ff = open("cornersf.csv", 'w')
-    csvwriterf = csv.writer(ff)  
+    # ff = open("cornersf.csv", 'w')
+    # csvwriterf = csv.writer(ff)  
 
 
-    testudoFileName = BasePath + "Data/testudo.jpg"
+    testudoFileName = BasePath + "Data/testudo.png"
     testudo_image = cv2.imread(testudoFileName)
     if testudo_image is None:
         print("testudo image no found!")
@@ -145,14 +145,17 @@ def main():
                     rotation = rotation + 90
                 if first_time:
                     old_rotation = rotation                
-                del_rotation = np.minimum(np.abs(old_rotation - rotation), np.abs(old_rotation - rotation - 360))
+                del_rotation = np.abs(old_rotation - rotation)
+                if del_rotation == 270:
+                    del_rotation = 90
+                # np.minimum(np.abs(old_rotation - rotation), np.abs(old_rotation - rotation - 360))
                 if (del_rotation > 100): #basically, greater than 90#REVIEW
-                    print("del rotation high")
+                    print("del rotation high", del_rotation)
                     # rotation = old_rotation
 
                 old_rotation = rotation
             else:
-                print("Tag not detected properly!")
+                print("Tag not detected properly, using old rotation!")
                 rotation = old_rotation
 
             # print("rotation = ", rotation)
