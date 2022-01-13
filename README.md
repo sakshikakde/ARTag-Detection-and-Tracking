@@ -104,6 +104,7 @@ python3 TetudoNCube.py --BasePath ./ --VideoFilePath ./Data/Tag0.mp4 --SaveFileN
 5) UseFilter - set 1 to use moving average filter. THIS WILL NOT WORK FOR MULTIPLE TAGS VIDEO. Please set it to 0 for multiple tags 
 
 ## Results
+![alt](https://github.com/sakshikakde/ARTag-Detection-and-Tracking/blob/main/media/testudo.gif)
 
 # Placing a virtual cube onto tag
 Since a cube is a three dimensional entity, we need a
@@ -129,4 +130,6 @@ Hence, r3 = r1 × r2
 - The final projection matrix can be written as P =
 K[r1, r2, r3, t].
 
+## Results
+![alt](https://github.com/sakshikakde/ARTag-Detection-and-Tracking/blob/main/media/cube.gif)
 
