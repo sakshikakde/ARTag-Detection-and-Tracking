@@ -149,8 +149,8 @@ def processRefTag(image):
 def main():
    
     Parser = argparse.ArgumentParser()
-    Parser.add_argument('--BasePath', default='/home/sakshi/courses/ENPM673/sakshi_p1/', help='Base path of project1, Default:/home/sakshi/courses/ENPM673/sakshi_p1/')
-    Parser.add_argument('--VideoFilePath', default='/home/sakshi/courses/ENPM673/sakshi_p1/Data/Tag2.mp4', help='MP4 file name, Default:Tag2.mp4')
+    Parser.add_argument('--BasePath', default='./', help='Base path of project1, Default:./')
+    Parser.add_argument('--VideoFilePath', default='./Tag2.mp4', help='MP4 file name, Default:Tag2.mp4')
     Parser.add_argument('--SavePath', default='Results/problem1/', help='Folder to save graphs, Default:Video1')
 
     Args = Parser.parse_args()
@@ -158,10 +158,6 @@ def main():
     VideoFilePath = Args.VideoFilePath
     SavePath = BasePath + Args.SavePath
 
-
-    # BasePath = '/home/sakshi/courses/ENPM673/sakshi_p1/'
-    # SavePath = BasePath + "Results/problem1/"
-    # video_file = BasePath + "Data/Tag2.mp4"
     RefTagFileName = BasePath + "Data/ref_marker.png"
     ref_tag_image = cv2.imread(RefTagFileName)
 

@@ -32,8 +32,8 @@ def drawCube(image, bottom_points, top_points):
 def main(): 
 
     Parser = argparse.ArgumentParser()
-    Parser.add_argument('--BasePath', default='/home/sakshi/courses/ENPM673/sakshi_p1/', help='Base path of project1, Default:/home/sakshi/courses/ENPM673/sakshi_p1/')
-    Parser.add_argument('--VideoFilePath', default='/home/sakshi/courses/ENPM673/sakshi_p1/Data/Tag0.mp4', help='MP4 file name, Default:Tag2.mp4')
+    Parser.add_argument('--BasePath', default='./', help='Base path of project1, Default:./')
+    Parser.add_argument('--VideoFilePath', default='./Data/Tag0.mp4', help='MP4 file name, Default:Tag2.mp4')
     Parser.add_argument('--SaveFileName', default='Results/problem2/testudo/tag0.avi', help='Folder to save graphs, Default:testudo/Tag2_unfiltered.avi')
     Parser.add_argument('--ProjectTestudo', default=True,type=lambda x: bool(int(x)))
     Parser.add_argument('--UseFilter',  default=False,type=lambda x: bool(int(x)))
